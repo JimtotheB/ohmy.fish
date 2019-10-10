@@ -7,7 +7,6 @@
 import {grommet, dark} from 'grommet/themes'
 import {deepMerge} from "grommet/utils";
 
-console.log(dark)
 const theme = {
   global: {
     active: {

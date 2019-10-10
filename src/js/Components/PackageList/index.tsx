@@ -1,6 +1,6 @@
 import * as React from 'react'
-// const React = window.React
-import {Button, Box, Text, Anchor, InfiniteScroll, Form, FormField, TextInput} from 'grommet'
+import {includes} from 'lodash/fp'
+import {Button, Box, Text, Anchor, InfiniteScroll, Form, FormField, ResponsiveContext} from 'grommet'
 import {Close, Search} from 'grommet-icons'
 import {Link} from 'react-router-dom'
 import {OMF_Packages} from "../../../OMF_PKGS";
@@ -53,7 +53,9 @@ export class PackageList extends React.Component {
   resetBox(){
     this.setState({searchBox: false})
   }
-  showBox(){
+  showBox(size, show){
+    let shouldShow = size === show
+    if(!includes(size, show)) return
     return (
       <Box
         direction='row'
@@ -62,6 +64,7 @@ export class PackageList extends React.Component {
         <Button
           active={this.activeFilter('search')}
           onClick={() => this.showSearch()}
+          fill
           icon={<Search />}
           label='Search'
         />}
@@ -85,65 +88,70 @@ export class PackageList extends React.Component {
 
   render() {
     return (
-      <Box
-        direction={'column'}
-      >
-        <Box
-          align={'center'}
-          overflow={'auto'}
-          gap={'small'}
-        >
-
+      <ResponsiveContext.Consumer>
+        {size => (
           <Box
-            flex={false}
-            margin={'xsmall'}
-            round={'xsmall'}
-            width={'xlarge'}
-            direction={'row'}
-            gap={'small'}
+            direction={'column'}
           >
-
-            {this.showBox()}
-
-            <Link to={'/themes'}>
-              <Button
-                active={this.activeFilter('theme')}
-                label={`Show ${this.getLen('theme')} Themes`}
-              />
-            </Link>
-
-            <Link to={'/plugins'}>
-              <Button
-                active={this.activeFilter('plugin')}
-                label={`Show ${this.getLen('plugin')} Plugins`}
-              />
-            </Link>
-          </Box>
-
-          <InfiniteScroll items={this.getPackagelist()} step={10}>
-            {(item, index) => (
+            {this.showBox(size, ['small'])}
+            <Box
+              align={'center'}
+              overflow={'auto'}
+              gap={'small'}
+            >
               <Box
                 flex={false}
-                key={index}
-                pad='medium'
-                background={`brand`}
                 margin={'xsmall'}
-                elevation={'large'}
                 round={'xsmall'}
                 width={'xlarge'}
-                direction={'column'}
+                direction={'row'}
                 gap={'small'}
-                onClick={() => {
-                }}
-                // align='center'
               >
-                <Anchor href={item.repository} label={this.getAnchorText(item)}/>
-                {item.description && <Text color='white'>{item.description}</Text>}
+
+                {this.showBox(size, ['medium','large'])}
+
+                <Link to={'/themes'}>
+                  <Button
+                    active={this.activeFilter('theme')}
+                    label={`Show ${this.getLen('theme')} Themes`}
+                  />
+                </Link>
+
+                <Link to={'/plugins'}>
+                  <Button
+                    active={this.activeFilter('plugin')}
+                    label={`Show ${this.getLen('plugin')} Plugins`}
+                  />
+                </Link>
               </Box>
-            )}
-          </InfiniteScroll>
-        </Box>
-      </Box>
+
+              <InfiniteScroll items={this.getPackagelist()} step={10}>
+                {(item, index) => (
+                  <Box
+                    flex={false}
+                    key={index}
+                    pad='medium'
+                    background={`brand`}
+                    margin={'xsmall'}
+                    elevation={'large'}
+                    round={'xsmall'}
+                    width={'xlarge'}
+                    direction={'column'}
+                    gap={'small'}
+                    onClick={() => {
+                    }}
+                    // align='center'
+                  >
+                    <Anchor href={item.repository} label={this.getAnchorText(item)}/>
+                    {item.description && <Text color='white'>{item.description}</Text>}
+                  </Box>
+                )}
+              </InfiniteScroll>
+            </Box>
+          </Box>
+        )}
+      </ResponsiveContext.Consumer>
+
     )
   }
 }
